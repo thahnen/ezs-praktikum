@@ -1,0 +1,36 @@
+# Folgende Parameter sind einstellbar:
+#
+# Verfahren:
+# Es gibt eine Basisspeed. Man kann parametrieren, um wieviel sich
+# die Basisspeed ändert, bei bestimmten Auslenkungen:
+#       Wert des Auslenkungssensors: keine schwach normal stark
+# Falls "keine" parametriert ist, wird die Basisspeed bei Durchfahren
+# der Start/Ziellinie angepasst.
+#
+# Ausserdem kann fuer jeden Sensortyp der Offsetwert eingegeben werden,
+# der auf die Basisspeed addiert wird. (Eventuell auch die Zeitdauer, wie lange
+# dieser Offsetwert aktiv ist)
+#
+# Typ | Innen/Aussen | Offset (+/-) | Dauer [ms] |
+#
+# Dauer==0: Bis zum nächsten Sensor (Default)
+#
+# Basisspeedanpassung
+# Auslenkung	Innen	Aussen
+0                +0      +0
+1                +0      +0
+2                +0      +0
+3                +0      +0
+4                +0      +0
+5                -0      -0
+6                -0      -0
+7                -0      -0
+#
+#OFFSETS
+#
+# Typ         Innen   Aussen    Zeit
+START		+50	+50	0	
+GEFAHRENSTELLE	-5	-5	0
+ANFANG_BRUECKE	+75	+75	0
+ENDE_BRUECKE	-20	-20	0
+KURVE		-25	-25	0

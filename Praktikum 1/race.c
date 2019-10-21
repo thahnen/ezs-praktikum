@@ -170,7 +170,7 @@ static void exploration(int fdc) {
 		if (state_act == state_old) {
 			v = 22000000 / (time_act - time_old);
 			
-			if((state_act & 0xf000) == 0x1000) {
+			if ((state_act & 0xf000) == 0x1000) {
 				rounds++;
 				last_time = time_act;
 
@@ -212,6 +212,12 @@ static void tracking(int rounds_to_go) {
 		
 		if (state_act != position->type) {
 			printf("wrong position 0x%04x (0x%04x)\n", state_act, position->type);
+
+			// Wenn Fahrzeug von Bahn genommen und an neuer Stelle aufgesetzt:
+			// => Richtige Position in Liste finden!
+			do {
+				position = position->next;
+			} while (state_act != position->type);
 		}
 		
 		if ((state_act & 0xf000) == 0x1000) {	// Start/Ziel
@@ -244,6 +250,33 @@ static void tracking(int rounds_to_go) {
 }
 
 
+void* enemy_thread(void) {
+	int fde = open("/dev/Carrera.other", O_RDONLY);
+	if (fde < 0) {
+		perror("/dev/Carrera.other");
+		return -1;
+	}
+
+	for (;;) {
+		ssize_t ret;
+		__u16 status;
+
+		if ((ret = read(fde, &status, sizeof(status))) < 0) {
+			perror("Enemy thread read!");
+			return -1;
+		}
+
+		printf("Enemy status: 0x%04x\n", status);
+
+		struct timespec deadline;
+		deadline.tv_sec = 1;
+		deadline.tv_nsec = 0;
+
+		clock_nanosleep(CLOCK_REALTIME, 0, &deadline, NULL);
+	}
+}
+
+
 int main(int argc, char** argv) {
 	int rounds_to_go = 10;
 	struct sigaction new_action;
@@ -265,6 +298,9 @@ int main(int argc, char** argv) {
 	new_action.sa_flags = 0;
 	sigaction(SIGINT, &new_action, NULL);
 
+	// Gegner-Thread starten
+	pthread_t gegner;
+	pthread_create(&gegner, NULL, enemy_thread, NULL);
 	
 	set_speed(fdc, basis_speed_in);
 	

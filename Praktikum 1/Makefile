@@ -1,9 +1,9 @@
 # Makefile für Praktikum 1
+CFLAGS=-g -Wall
+LDLIBS=-lrt -lpthread
 
-CFLAGS=-g -Wall -m32
-LDLIBS=-lrt
-
-all: race
+all:
+	race
 
 clean:
-	rm -f race *.o
+	rm -rf race *.o
