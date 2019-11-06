@@ -2,7 +2,8 @@
 
 CFLAGS=-g -Wall
 
-all: follow
+all:
+	follow
 
 clean:
 	rm -f follow *.o
