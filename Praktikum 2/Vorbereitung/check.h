@@ -1,9 +1,6 @@
 #ifndef _CHECK_H
 #define _CHECK_H
 
-#define clock_nanosleep _clock_nanosleep
-#define clock_gettime _clock_gettime
-
 
 extern int _clock_nanosleep(clockid_t clock_id, int flags, const struct timespec* request,
 								struct timespec* remain);
@@ -20,5 +17,8 @@ struct _liste {
 	struct _liste* next;
 };
 
+
+#define clock_nanosleep _clock_nanosleep
+#define clock_gettime _clock_gettime
 
 #endif
