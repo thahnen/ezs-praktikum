@@ -1,0 +1,142 @@
+\documentclass[10pt,a4paper]{scrartcl}
+
+\usepackage[ngerman]{babel}			% Nötig für deutsche Silbentrennung
+\usepackage[ansinew]{inputenc}		% Nötig für deutsche Umlaute
+\usepackage{scrpage2}				% Nötig für Fusszeile
+\usepackage{graphicx}				% Nötig für eingebettete Bilder
+\usepackage{hyperref}
+\usepackage{listings}				% Nötig für Quelltext-Einbindung
+\usepackage{courier}				% Nötig für Courier-Font (Quelltext)
+\usepackage[bottom=10em]{geometry}	% Nötig für Grössenveränderung Fusszeile
+
+\clearscrheadfoot
+\pagestyle{plain}
+
+% Geforderte "Formatvorlage" für Autoren; Parameter:
+% - 1) Vor- & Zuname
+% - 2) Matrikelnummer
+% - 3) Gruppennummer
+\newcommand{\autor}[3]{#1, \\ & & Matrikelnummer #2, \\ & & Gruppe #3}
+
+% Geforderte "Formatvorlage" für Quellcode; Parameter:
+% - 1) Sprache des Quellcodes (siehe: https://en.wikibooks.org/wiki/LaTeX/Source_Code_Listings#Supported_languages)
+% - 2) Zeilengrösse (nicht Schriftgrösse!), Standard: 10
+%
+% Muss gefolgt werden mit:
+% \begin{lstlisting}[frame=single]
+% ... Code ...
+% end{lstlisting}
+\newcommand{\code}[2]{\lstset{language=#1, basicstyle=\fontsize{8}{#2}\selectfont\ttfamily}}
+
+
+\begin{document}
+
+
+% ================================================================================
+%
+%		Titelblatt (Institution, Titel/ Untertitel, Studiengang/ Semester, Autor, Datum, Version)
+%
+% ================================================================================
+\begin{center}
+	\LARGE{Hochschule Niederrhein} \\
+	\Large{Fachbereich Elektrotechnik und Informatik} \\
+	\large{Labor f\"ur Echtzeitsysteme}
+\end{center}
+\begin{verbatim}
+
+
+
+
+
+
+
+\end{verbatim}
+\begin{center}
+	\textbf{\huge{Praktikum Echtzeitsysteme}} \\
+	\textbf{\LARGE{Termine 1-3}} \\
+	\textbf{\Large{B-I-5}}
+\end{center}
+\begin{verbatim}
+
+
+
+
+
+
+
+\end{verbatim}
+\begin{center}
+	\begin{tabular}{lll}
+		\textbf{Autor:} & & \autor{Tobias Hahnen}{1218710}{C} \\
+		& & \\
+		\textbf{Datum:} & & \today \\
+		& & \\
+		\textbf{Version:} & & 1.0.0
+	\end{tabular}
+\end{center}
+
+
+\newpage
+
+
+% ================================================================================
+%
+%		Inhaltsverzeichnis (automatisch generiert)
+%
+% ================================================================================
+\tableofcontents
+\newpage
+
+
+% ================================================================================
+%
+%		1. Termin
+%
+% ================================================================================
+\section{Termin}
+
+\newpage
+
+
+% ================================================================================
+%
+%		2. Termin
+%
+% ================================================================================
+\section{Termin}
+
+\newpage
+
+
+% ================================================================================
+%
+%		3. Termin
+%
+% ================================================================================
+\section{Termin}
+
+\newpage
+
+
+% ================================================================================
+%
+%		3) Zusammenfassung Praktikum 1-3
+%
+% ================================================================================
+\section{Zusammenfassung}
+
+\newpage
+
+
+% ================================================================================
+%
+%		4) Anhang
+%
+% ================================================================================
+\section{Anhang}
+\label{sec:anhang}
+
+\newpage
+
+
+\end{document}
