@@ -1,4 +1,4 @@
-# Makefile für Praktikum 1
+# Makefile für Praktikum 1-3
 CFLAGS=-g -Wall
 LDLIBS=-lrt -lpthread
 
