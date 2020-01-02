@@ -3,6 +3,11 @@
 	und Informatik der Hochschule Niederrhein.
 
 	Fuer die Generierung wird die Realzeitbibliothek "rt" benoetigt.
+
+	Tobias Hahnen, 1218710
+	Mike Wandels, 1165207
+	Gruppe C
+	02.01.2020
 */
 
 #include <stdio.h>
@@ -20,7 +25,8 @@
 #define make_seconds(a) (a / 1000000)
 #define make_mseconds(a) ((a - ((a / 1000000) * 1000000)) / 1000)
 
-// Anfang Praktikum 3
+
+// Praktikum 3
 static unsigned char ausl_in = -1, ausl_out = -1;
 
 // Anfang Praktikum 2
@@ -73,7 +79,7 @@ static struct _liste* add_to_liste(int type, int length) {
 	}
 
 	for (ptr = root; ptr->next != root; ptr = ptr->next) {}
-	
+
 	ptr->next = lptr;
 	return lptr->next;
 }
@@ -146,7 +152,7 @@ static char* decode(__u16 status) {
 	if ((status & 0xf000) == 0x3000)		return "NICHT KODIERT";
 	if ((status & 0xf000) == 0x4000)		return "NICHT KODIERT";
 	if ((status & 0xf000) == 0x5000)		return "NICHT KODIERT";
-	
+
 	if ((status & 0xf000) == 0x6000) {
 		if ((status & 0x0400) == 0x0400)	return "Brückenende";
 		else								return "Brückenanfang";
@@ -161,7 +167,7 @@ static char* decode(__u16 status) {
 	if ((status & 0xf000) == 0xd000)		return "NICHT KODIERT";
 	if ((status & 0xf000) == 0xe000)		return "NICHT KODIERT";
 	if ((status & 0xf000) == 0xf000)		return "NICHT KODIERT";
-	
+
 	return "TYP UNBEKANNT";
 }
 
@@ -174,25 +180,25 @@ static void exploration(int fdc) {
 	do {
 		state_old = read_with_time(fdc, &time_old);
 	} while ((state_old & 0xf000) != 0x1000);	// fahre bis Start
-	
+
 	while (rounds < 2) {
 		do {
 			state_act = read_with_time(fdc, &time_act);
 		} while (is_sling(state_act));
-		
+
 		printf("old/act: 0x%x/0x%x\t%6.6ld [ms] - ",
 			state_old, state_act,
 			(time_act - time_old) / 1000);
-		
+
 		if (state_act == state_old) {
 			v = 22000000 / (time_act - time_old);
-			
+
 			if ((state_act & 0xf000) == 0x1000) {
 				rounds++;
 				last_time = time_act;
 
 				printf("Round: %d - %d [mm]\n", rounds, length_sum);
-				
+
 				length_sum = 0;
 			}
 
@@ -202,10 +208,10 @@ static void exploration(int fdc) {
 			length_sum += length;
 
 			printf("%s: length=%d\n", decode(state_act), length);
-			
+
 			add_to_liste(state_act, length);
 		}
-		
+
 		state_old = state_act;
 		time_old = time_act;
 	}
@@ -224,17 +230,17 @@ void fahre_segment(unsigned int type, unsigned int laenge) {
 	// Überprüfen, welches Segment vorliegt
 	switch (type & 0xf000) {
 	case 0x1000:
-		// Start/Ziel
+		// Start/Ziel -> Maximalgeschwindigkeit
 		speed = 0xff;
 		break;
 	case 0x2000:
-		// Kreuzungsstelle
+		// Kreuzungsstelle (durch testen herausgefunden)
 		speed = 0xc0;
 		break;
 	case 0x6000:
 		// Brücke
 		if ((type & 0x0400) == 0x0000) {
-			// Anfang
+			// Anfang  -> Maximalgeschwindigkeit
 			speed = 0xff;
 		} else {
 			// Ende
@@ -250,11 +256,11 @@ void fahre_segment(unsigned int type, unsigned int laenge) {
 		}
 		break;
 	case 0x0000:
-		// Auslenkung
+		// Auslenkung (Geschwindigkeit noch zu hoch)
 		if (innen) {
 			speed -= 40;
 		} else {
-			speed -=20;
+			speed -= 20;
 		}
 		break;
 	}
@@ -273,7 +279,7 @@ static void tracking(int rounds_to_go) {
 		bool kurve = false;
 		ausl_in = -1;
 		ausl_out = -1;
-		
+
 		// Wird solange ausgeführt wie Auslenkung vorhanden
 		do {
 			state_act = read_with_time(fdc, &time_act);
@@ -282,7 +288,7 @@ static void tracking(int rounds_to_go) {
 			if (kurve && (ausl_in != -1 || ausl_out != -1)) {
 				// Auslenkung innen oder aussen vorhanden!
 				printf("Auslenkung erkannt, Geschwindigkeit wird EINMAL angepasst\n");
-				
+
 				if (ausl_in != -1) {
 					if (ausl_in > 4) fahre_segment(0x0000, 0);
 				} else {
@@ -296,9 +302,9 @@ static void tracking(int rounds_to_go) {
 		kurve = false;
 
 		state_act = read_with_time(fdc, &time_act);
-		
+
 		printf("0x%04x (expected 0x%04x)\n", state_act, position->type);
-		
+
 		if (state_act != position->type) {
 			printf("wrong position 0x%04x (0x%04x)\n", state_act, position->type);
 
@@ -308,20 +314,20 @@ static void tracking(int rounds_to_go) {
 				position = position->next;
 			} while (state_act != position->type);
 		}
-		
+
 		if ((state_act & 0xf000) == 0x1000) {	// Start/Ziel
 			rounds++;
 			rounds_to_go--;
-			
+
 			if (last_time) {
 				if ((time_act - last_time) < besttime) besttime = time_act - last_time;
 				meantime += time_act - last_time;
-				
+
 				printf("\n---> Runde: %d - Zeit: %ld.%03lds "
 					"(Beste: %ld.%03lds, "
 					"Mean: %ld.%03lds)\n",
 					rounds,
-				
+
 					make_seconds((time_act - last_time)),
 					make_mseconds((time_act - last_time)),
 					make_seconds(besttime),
@@ -330,7 +336,7 @@ static void tracking(int rounds_to_go) {
 					make_mseconds(meantime / rounds)
 				);
 			}
-			
+
 			last_time = time_act;
 		}
 
@@ -339,26 +345,26 @@ static void tracking(int rounds_to_go) {
 			struct timespec sleeptime;
 			sleeptime.tv_sec = 0;
 			sleeptime.tv_nsec = 10000000;
-	
+
 			clock_gettime(CLOCK_MONOTONIC, &eintritt_user);
 			unsigned long time_in_us = timespec_to_ulong_microseconds(&eintritt_user);
 			unsigned long gegnerzeit_in_us = timespec_to_ulong_microseconds(&eintritt_gegner);
 			unsigned long diff_zeit_in_us = time_in_us-gegnerzeit_in_us;
-	
+
 			// Await enemy leaving the collision zone
 			while (((gegner_pos->type & 0xf000) == 0x2000) && diff_zeit_in_us < 2500000) {
 				printf("%4.4x - %4.4x - diff_zeit_in_us: %ld\n", position->type,
 						gegner_pos->type, diff_zeit_in_us);
-				
+
 				set_speed(fdc, 0x0b);
 				clock_nanosleep(CLOCK_MONOTONIC, 0, &sleeptime, NULL);
-	
+
 				// Get new time difference
 				clock_gettime(CLOCK_MONOTONIC, &eintritt_user);
 				time_in_us = timespec_to_ulong_microseconds(&eintritt_user);
 				diff_zeit_in_us = time_in_us-gegnerzeit_in_us;
 			}
-	
+
 			set_speed(fdc, 0x0c);
 		}
 		// Ende Praktikum 2
@@ -366,7 +372,7 @@ static void tracking(int rounds_to_go) {
 		// Anfang Praktikum 3 (Geschwindigkeitsanpassung)
 		fahre_segment(position->type, position->length);
 		// Ende Praktikum 3
-		
+
 		position = position->next;
 	} while(rounds_to_go);
 }
@@ -381,12 +387,12 @@ void* enemy_thread(void) {
 
 	// Anfang Praktikum 2
 	gegner_pos = root;
-	ssize_t ret;	
+	ssize_t ret;
 	__u16 alt, aktuell = 0;
 
 	if ((ret = read(fde, &alt, sizeof(alt))) < 0) {
 		perror("Enemy thread: read -> alt");
-		return NULL;	
+		return NULL;
 	}
 
 	for (;;) {
@@ -407,7 +413,7 @@ void* enemy_thread(void) {
 		clock_gettime(CLOCK_MONOTONIC, &eintritt_gegner);
 
 		while ((gegner_pos->type | 0x0800) != (aktuell | 0x0800)) {
-			gegner_pos = gegner_pos->next;		
+			gegner_pos = gegner_pos->next;
 		}
 	}
 	// Ende Praktikum 2
@@ -426,7 +432,7 @@ int main(int argc, char** argv) {
 
 	if (argc > 1) {
 		basis_speed_in = basis_speed_out = (unsigned char) strtoul(argv[1], NULL, 0);
-		
+
 		if (argc > 2) rounds_to_go = (unsigned int) strtoul(argv[2], NULL, 0);
 	}
 
@@ -434,11 +440,11 @@ int main(int argc, char** argv) {
 	sigemptyset(&new_action.sa_mask);
 	new_action.sa_flags = 0;
 	sigaction(SIGINT, &new_action, NULL);
-	
+
 	// Erforschung mit bestimmter Geschwindigkeit
-	set_speed(fdc, 0xa0);	
+	set_speed(fdc, 0xa0);
 	exploration(fdc);
-	
+
 	print_liste();
 
 	// Auf Start vorbereiten!
@@ -446,14 +452,14 @@ int main(int argc, char** argv) {
 	printf("Rennen starten (Enter drücken)!");
 	char g = getchar();
 	set_speed(fdc, basis_speed_in);
-	
+
 	// Gegner-Thread starten
 	pthread_t gegner;
 	pthread_create(&gegner, NULL, enemy_thread, NULL);
 
 	tracking(rounds_to_go);
-	
+
 	set_speed(fdc, 0x0);
-	
+
 	return 0;
 }

@@ -4,7 +4,6 @@
 \usepackage[ansinew]{inputenc}		% Nötig für deutsche Umlaute
 \usepackage{scrpage2}				% Nötig für Fusszeile
 \usepackage{graphicx}				% Nötig für eingebettete Bilder
-\usepackage{hyperref}
 \usepackage{listings}				% Nötig für Quelltext-Einbindung
 \usepackage{courier}				% Nötig für Courier-Font (Quelltext)
 \usepackage[bottom=10em]{geometry}	% Nötig für Grössenveränderung Fusszeile
@@ -15,8 +14,7 @@
 % Geforderte "Formatvorlage" für Autoren; Parameter:
 % - 1) Vor- & Zuname
 % - 2) Matrikelnummer
-% - 3) Gruppennummer
-\newcommand{\autor}[3]{#1, \\ & & Matrikelnummer #2, \\ & & Gruppe #3}
+\newcommand{\autor}[2]{#1, \\ & & Matrikelnummer #2}
 
 % Geforderte "Formatvorlage" für Quellcode; Parameter:
 % - 1) Sprache des Quellcodes (siehe: https://en.wikibooks.org/wiki/LaTeX/Source_Code_Listings#Supported_languages)
@@ -67,7 +65,8 @@
 \end{verbatim}
 \begin{center}
 	\begin{tabular}{lll}
-		\textbf{Autor:} & & \autor{Tobias Hahnen}{1218710}{C} \\
+		\textbf{Autor:} & & \autor{Tobias Hahnen}{1218710} \\
+		& & \autor{Mike Wandels}{1165207} \\
 		& & \\
 		\textbf{Datum:} & & \today \\
 		& & \\
@@ -90,53 +89,150 @@
 
 % ================================================================================
 %
-%		1. Termin
+%		1) Beschreibung der Aufgabenstellung
 %
 % ================================================================================
-\section{Termin}
+\section{Beschreibung der Aufgabenstellung}
+
+Im Zuge des Praktikums Echtzeitsysteme soll eine Steuerung f\"ur eine Carrerabahn erstellt und erweitert werden, sodass ein Fahrzeug eine Bahn abfahren und ausmessen kann und danach gegen einen Gegner ein Rennen fahren kann.
+Diese Steuerung sollte dabei unabh\"angig von Auto, Carrerabahn und der verwendeten Spur sein. \\
+Dazu f\"ahrt das Auto vor Rennbeginn die Strecke ab und misst anhand der Zeit, die das Auto durch die Lichtschranken braucht, die L\"ange der einzelnen Elemente und f\"ugt diese einer Liste hinzu. \\
+Im anschliessenden Rennen soll sich das Fahrzeug gegen den Gegner behaupten, indem es auf die unterschiedlichen Stati reagiert.
+Das heisst, dass die Auslenkung in den Kurven beachtet werden muss sowie die Tatsache, ob sich das Fahrzeug auf der Innen- oder Aussenbahn befindet und bei vorkommenden Gefahrenstellen, ob sich bereits der Gegner darin befindet oder nicht und dementsprechend wartet oder durchf\"ahrt.
+Anhand der in den Stati \"ubergebenen Informationen sollte dann auch eine dynamische Geschwindigkeitsanpassung implementiert werden, sodass auf unterschiedlichen Streckenabschnitten unterschiedliche Geschwindigkeiten gefahren werden k\"onnen, um das meiste aus diesen Abschnitten herauszuholen, ohne dass das Fahrzeug aus der Bahn fliegt oder eine Kollision verursacht.
+
+
+% ================================================================================
+%
+%		2) Bedienung der Applikation
+%
+% ================================================================================
+\section{Bedienung der Applikation}
+
+Bedient wird die Applikation \"uber die Kommandozeile, indem sie wie folgt aufgerufen wird:
+
+\code{Bash}{10}
+\begin{lstlisting}[frame=single]
+$ ./race {Geschwindigkeit} {Runden}
+\end{lstlisting}
+
+Dabei gibt die \textit{Geschwindigkeit} die zum Start des Rennens an, in der Erkundungsphase f\"ahrt das Fahrzeug in einer anderen. \\
+Die \textit{Runden} geben die L\"ange des Rennens an, die Erkundungsphase ist davon unabh\"angig. \\
+
+W\"ahrend des Rennens gibt es einige Ausgaben auf dem Bildschirm, die allerdings nur eine Information angeben, man kann nicht mit dem Programm interagieren, nachdem es gestartet wurde.
+Wenn man es allerdings per Keyboard Interrupt (Strg-C) abbricht, stoppt auch das Fahrzeug auf der Strecke.
+
+% ================================================================================
+%
+%		3) Generierung und Installation
+%
+% ================================================================================
+\section{Generierung und Installation}
+
+Zur Generierung wird das Build-Management-Tool \textit{Make} und die dazugeh\"orige Makefile ben\"otigt.
+Ausserdem wird der Compiler \textit{GCC/G++}, die Echtzeitbibliothek \textit{RT} und ein Unixartiges Betriebssystem vorausgesetzt. \\
+Die Erstellung des Programms erfolgt \"uber die folgenden Aufrufe des Tools \textit{Make}:
+
+\code{Bash}{10}
+\begin{lstlisting}[frame=single]
+$ make clean
+$ make all
+\end{lstlisting}
+
+Danach kann das Programm wie in der Sektion \textit{Bedienung der Applikation} beschrieben aufgerufen werden.
 
 \newpage
 
 
 % ================================================================================
 %
-%		2. Termin
+%		4) Skizzierung der Lösung
 %
 % ================================================================================
-\section{Termin}
+\section{Skizzierung der L\"osung}
+
+\subsection{Verbale Beschreibung der L\"osung}
+
+\subsection{Datenflussdiagramme}
+
+\subsection{Strukturgramme der einzelnen Rechenprozesse}
 
 \newpage
 
 
 % ================================================================================
 %
-%		3. Termin
+%		5) Vorbereitungen und Nachbereitungen der einzelnen Teilaufgaben
 %
 % ================================================================================
-\section{Termin}
+\section{Vorbereitungen und Nachbereitungen der einzelnen Teilaufgaben}
 
-\newpage
+\subsection{Termin No. 1}
 
+\subsubsection{Vorbereitung}
 
-% ================================================================================
-%
-%		3) Zusammenfassung Praktikum 1-3
-%
-% ================================================================================
-\section{Zusammenfassung}
+\subsubsection{L\"angenberechnung der Kreuzungsbahn}
+\begin{tabular}{l l}
+	\textbf{Element} & \textbf{L\"ange} \\
+	\hline
+	Start/Ziel $ \rightarrow $ Gefahrenstelle 1 & 108 cm \\
+	Gefahrenstelle 1 $ \rightarrow $ Kurve 1 & 105 cm \\
+	Kurve 1 $ \rightarrow $ Kurve 2 & 91 cm \\
+	Kurve 2 $ \rightarrow $ Gefahrenstelle 2 & 213 cm \\
+	Gefahrenstelle 2 $ \rightarrow $ Kurve 3 & 88 cm \\
+	Kurve 3 $ \rightarrow $ Kurve 4 & 112 cm \\
+	Kurve 4 $ \rightarrow $ Start/Ziel & 88 cm
+\end{tabular} \\
 
-\newpage
+\begin{tabular}{ll}
+	\textbf{Auto:} & Mercedes-Benz V8 \\
+	\textbf{Gesamtl\"ange:} & 8,05 m
+\end{tabular}
 
+\subsubsection{L\"angenberechnung der Br\"uckenbahn}
+\begin{tabular}{l l}
+	\textbf{Element} & \textbf{L\"ange} \\
+	\hline
+	Start/Ziel $ \rightarrow $ Kurve 1 & 97 cm \\
+	Kurve 1 $ \rightarrow $ Kurve 2 & 93 cm \\
+	Kurve 2 $ \rightarrow $ Br\"uckenanfang & 79 cm \\
+	Br\"uckenanfang $ \rightarrow $ Br\"uckenende & 131 cm \\
+	Br\"uckenende $ \rightarrow $ Kurve 3 & 28 cm \\
+	Kurve 3 $ \rightarrow $ Kurve 4 & 91 cm \\
+	Kurve 4 $ \rightarrow $ Start/Ziel & 82 cm
+\end{tabular} \\
 
-% ================================================================================
-%
-%		4) Anhang
-%
-% ================================================================================
-\section{Anhang}
-\label{sec:anhang}
+\begin{tabular}{l l}
+	\textbf{Auto:} & Weiss 69 \\
+	\textbf{Gesamtl\"ange:} & 6,01 m
+\end{tabular}
 
-\newpage
+\subsubsection{Unterschied zum Gegnerthread}
+Der Unterschied zum Gegnerthread liegt im 11. Bit, darin wird unterschieden, ob sich ein Fahrzeug aussen oder innen befindet, ergo m\"ussen sich der Gegner und unser Fahrzeug darin unterscheiden.
+
+\subsection{Termin No. 2}
+
+\subsubsection{Vorbereitung}
+
+\subsubsection{Kollisionsvermeidung}
+\begin{tabular}{c | c | c | c | c}
+	\textbf{Testfall} & $ t_{0} $ - 5s & $ t_{0} $ & $ t_{0} $ & \textbf{Erwartetes Ergebnis} \\
+	\hline
+	1 & & G \"uberf. S1 & E \"uberf. S1 & KV; nach G S2 \"uberf. hat, f\"ahrt E \\
+	2 & & E \"uberf. S1 & & Keine KV \\
+	3 & G \"uberf. S1 & E \"uberf. S1 & & Keine KV \\
+	4 & & G \"uberf. S4 & E \"uberf. S1 & Keine KV \\
+	5 & & G \"uberf. S1, bleibt stehen & E \"uberf. S1 & KV; E \"uberf. S2 max. bei $ t_{0} $ + dt +2s
+\end{tabular} \\ \\ \\
+
+\begin{tabular}{l l}
+	\textbf{ABNAHME:} & \\
+					& \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+\end{tabular}
+
+\subsection{Termin No. 3}
+
+\subsubsection{Vorbereitung}
 
 
 \end{document}
