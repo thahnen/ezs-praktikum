@@ -7,6 +7,7 @@
 \usepackage{listings}				% Nötig für Quelltext-Einbindung
 \usepackage{courier}				% Nötig für Courier-Font (Quelltext)
 \usepackage[bottom=10em]{geometry}	% Nötig für Grössenveränderung Fusszeile
+\usepackage{placeins}				% Nötig für feste Positionen von Grafiken
 
 \clearscrheadfoot
 \pagestyle{plain}
@@ -177,15 +178,37 @@ Zuletzt wird die Geschwindigkeit anhand des derzeitigen Elements dynamisch ermit
 
 Wenn das Rennen beendet wurde, nach der \"ubergebenen Anzahl von Runden, bleibt das Fahrzeug am Start/ Ziel Element stehen und das Programm endet.
 
-\subsection{Datenflussdiagramme}
+\newpage
 
-\textbf{Diagramm: Daten einlesen + \"ubermitteln Treiber}
 
-\subsection{Strukturgramme der einzelnen Rechenprozesse}
+\subsection{Datenflussdiagramm}
 
-\textbf{Diagramm: Strecke vermessen} \\
-\textbf{Diagramm: Gegnerthread} \\
-\textbf{Diagramm: Eigener Thread} \\
+\begin{figure}[h!]
+	\includegraphics[width=\textwidth]{Datenflussdiagramm.png}
+	\caption{Treiber zu Gegnerthread und Mainthread}
+\end{figure}
+\FloatBarrier
+
+\subsection{Strukturgramme: Mainthread}
+
+\begin{figure}[h!]
+	\includegraphics[width=\textwidth]{Diagramm-fahre_segment.png}
+	\caption{Funktion: \textit{void fahre\_segment(unsigned int type, unsigned int laenge)}}
+\end{figure}
+\FloatBarrier
+
+\begin{figure}[h!]
+	\includegraphics[width=\textwidth]{Diagramm-tracking.png}
+	\caption{Funktion: \textit{void tracking(int rounds\_to\_go)}}
+\end{figure}
+\FloatBarrier
+
+%\subsection{Strukturgramme: Gegnerthread}
+%\begin{figure}[h!]
+%	\includegraphics[width=\textwidth]{Diagramm-enemy_thread.png}
+%	\caption{Funktion: \textit{void* enemy\_thread(void)}}
+%\end{figure}
+%\FloatBarrier
 
 \newpage
 
