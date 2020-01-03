@@ -68,6 +68,8 @@
 		\textbf{Autor:} & & \autor{Tobias Hahnen}{1218710} \\
 		& & \autor{Mike Wandels}{1165207} \\
 		& & \\
+		\textbf{Gruppe:} & & C \\
+		& & \\
 		\textbf{Datum:} & & \today \\
 		& & \\
 		\textbf{Version:} & & 1.0.0
@@ -96,7 +98,8 @@
 
 Im Zuge des Praktikums Echtzeitsysteme soll eine Steuerung f\"ur eine Carrerabahn erstellt und erweitert werden, sodass ein Fahrzeug eine Bahn abfahren und ausmessen kann und danach gegen einen Gegner ein Rennen fahren kann.
 Diese Steuerung sollte dabei unabh\"angig von Auto, Carrerabahn und der verwendeten Spur sein. \\
-Dazu f\"ahrt das Auto vor Rennbeginn die Strecke ab und misst anhand der Zeit, die das Auto durch die Lichtschranken braucht, die L\"ange der einzelnen Elemente und f\"ugt diese einer Liste hinzu. \\
+Dazu f\"ahrt das Auto vor Rennbeginn die Strecke ab und misst anhand der Zeit, die das Auto durch die Lichtschranken braucht, die L\"ange der einzelnen Elemente und f\"ugt diese einer Liste hinzu.
+Es gibt zwei Bahnen mit unterschiedlichen Elementen und einer jeweils anderen Anordnung, daher muss die Steuerung auch das beste aus der Anordnung herausholen. \\
 Im anschliessenden Rennen soll sich das Fahrzeug gegen den Gegner behaupten, indem es auf die unterschiedlichen Stati reagiert.
 Das heisst, dass die Auslenkung in den Kurven beachtet werden muss sowie die Tatsache, ob sich das Fahrzeug auf der Innen- oder Aussenbahn befindet und bei vorkommenden Gefahrenstellen, ob sich bereits der Gegner darin befindet oder nicht und dementsprechend wartet oder durchf\"ahrt.
 Anhand der in den Stati \"ubergebenen Informationen sollte dann auch eine dynamische Geschwindigkeitsanpassung implementiert werden, sodass auf unterschiedlichen Streckenabschnitten unterschiedliche Geschwindigkeiten gefahren werden k\"onnen, um das meiste aus diesen Abschnitten herauszuholen, ohne dass das Fahrzeug aus der Bahn fliegt oder eine Kollision verursacht.
@@ -121,6 +124,7 @@ Die \textit{Runden} geben die L\"ange des Rennens an, die Erkundungsphase ist da
 
 W\"ahrend des Rennens gibt es einige Ausgaben auf dem Bildschirm, die allerdings nur eine Information angeben, man kann nicht mit dem Programm interagieren, nachdem es gestartet wurde.
 Wenn man es allerdings per Keyboard Interrupt (Strg-C) abbricht, stoppt auch das Fahrzeug auf der Strecke.
+
 
 % ================================================================================
 %
@@ -151,11 +155,37 @@ Danach kann das Programm wie in der Sektion \textit{Bedienung der Applikation} b
 % ================================================================================
 \section{Skizzierung der L\"osung}
 
+Die L\"osung zu der gegebenen Aufgabenstellung baut auf dem vorgegebenen Code-Ger\"ust auf. 
+
 \subsection{Verbale Beschreibung der L\"osung}
+
+Das Programm durchl\"auft im Wesentlichen zwei Schritte. \\
+
+Der 1. Schritt ist die Erkundung und Vermessung der Strecke, daf\"ur wird die Art des momentanen Elements durch das erhaltene Statuswort des Carrerabahn-Treibers ermittelt und die L\"ange mithilfe der Durchfahrtszeit und der angegebenen Geschwindigkeit errechnet.
+Diese Informationen werden dann in einer Liste f\"ur den zweiten Schritt abgelegt.
+Der Schritt ist beendet, sobald das Fahrzeug das Start/ Ziel Element erneut erreicht, danach wartet es auf den Start des Rennens, die durch eine simple Benutzereingabe erfolgt. \\
+
+Der 2. Schritt, das eigentliche Rennen, besteht im Wesentlichen aus zwei Teilen, der eine behandelt unser Fahrzeug und der andere das des Gegners.
+Beide laufen in einem separaten Thread, sodass sie beide auf dieselben Ressourcen zugreifen k\"onnen. \\
+Der Gegnerthread dient zur \"Uberwachung, an welcher Stelle der Rennbahn sich der Gegner befindet um die Kollisionsstelle fachgerecht zu handhaben.
+Daf\"ur wird die Position des Gegners mit einem Zeiger auf das entsprechende Bahnelement gespeichert, sodass es vom Thread, der unser Fahrzeug handhabt, abgerufen werden kann. \\
+Der Thread, der unser Fahrzeug steuert, handhabt die gesamte Steuerung, bestehend aus der dynamischen Geschwindigkeitsanpassung, der richtigen Reaktion an der Gefahrenstelle, basierend auf der Position des Gegners, sowie der Erkennung von Auslenkung in Kurven und der damit verbundenen Reaktion auf M\"oglichkeiten, aus der Bahn zu fliegen. \\
+Dazu wird das aktuelle, vom Carrerabahn-Treiber eingelesene, Statuswort ausgewertet, welches zuerst auf die Auslenkung getestet wird, was bedeutet, dass sich das Fahrzeug in einer Kurve befindet.
+Sollte die Auslenkung zu hoch sein, wird dementsprechend reagiert.
+Danach wird das aktuelle Element mit dem des Gegners verglichen, um eine Kollision an der Gefahrenstelle zu vermeiden.
+Zuletzt wird die Geschwindigkeit anhand des derzeitigen Elements dynamisch ermittelt und angepasst. \\
+
+Wenn das Rennen beendet wurde, nach der \"ubergebenen Anzahl von Runden, bleibt das Fahrzeug am Start/ Ziel Element stehen und das Programm endet.
 
 \subsection{Datenflussdiagramme}
 
+\textbf{Diagramm: Daten einlesen + \"ubermitteln Treiber}
+
 \subsection{Strukturgramme der einzelnen Rechenprozesse}
+
+\textbf{Diagramm: Strecke vermessen} \\
+\textbf{Diagramm: Gegnerthread} \\
+\textbf{Diagramm: Eigener Thread} \\
 
 \newpage
 
@@ -168,8 +198,6 @@ Danach kann das Programm wie in der Sektion \textit{Bedienung der Applikation} b
 \section{Vorbereitungen und Nachbereitungen der einzelnen Teilaufgaben}
 
 \subsection{Termin No. 1}
-
-\subsubsection{Vorbereitung}
 
 \subsubsection{L\"angenberechnung der Kreuzungsbahn}
 \begin{tabular}{l l}
@@ -212,7 +240,49 @@ Der Unterschied zum Gegnerthread liegt im 11. Bit, darin wird unterschieden, ob 
 
 \subsection{Termin No. 2}
 
-\subsubsection{Vorbereitung}
+\subsubsection{Vorbereitung: Gegnerthread in erweiterter Form}
+
+\code{C}{10}
+\begin{lstlisting}[frame=single]
+void* enemy_thread(void) {
+	int fde = open("/dev/Carrera.other", O_RDONLY);
+	if (fde < 0) {
+		perror("/dev/Carrera.other");
+		return -1;
+	}
+
+	gegner_pos = root;
+	ssize_t ret;
+	__u16 alt, aktuell = 0;
+
+	if ((ret = read(fde, &alt, sizeof(alt))) < 0) {
+		perror("Enemy thread: read -> alt");
+		return NULL;
+	}
+
+	for (;;) {
+		do {
+			if ((ret = read(fde, &aktuell, sizeof(aktuell))) < 0) {
+				perror("Enemy thread: read -> aktuell");
+				return NULL;
+			}
+
+			struct timespec deadline;
+			deadline.tv_sec = 0;
+			deadline.tv_nsec = 10000000;
+
+			clock_nanosleep(CLOCK_MONOTONIC, 0, &deadline, NULL);
+		} while (alt == aktuell || (aktuell & 0xf000) == 0x0000);
+
+		alt = aktuell;
+		clock_gettime(CLOCK_MONOTONIC, &eintritt_gegner);
+
+		while ((gegner_pos->type | 0x0800) != (aktuell | 0x0800)) {
+			gegner_pos = gegner_pos->next;
+		}
+	}
+}
+\end{lstlisting}
 
 \subsubsection{Kollisionsvermeidung}
 \begin{tabular}{c | c | c | c | c}
@@ -232,7 +302,9 @@ Der Unterschied zum Gegnerthread liegt im 11. Bit, darin wird unterschieden, ob 
 
 \subsection{Termin No. 3}
 
-\subsubsection{Vorbereitung}
+\subsubsection{Vorbereitung: Ber\"ucksichtigung Streckenl\"ange}
 
+Die Streckenl\"ange muss bei der dynamischen Geschwndigkeitsanpassung mitbeachtet werden, da damit die Geschwindigkeit anders angepasst werden kann.
+Wenn ein Element sehr lang ist, lohnt es sich auf die H\"ochstgeschwindigkeit zu beschleunigen, w\"ahrend es bei einem kurzen Element weniger lohnenswert ist, da im n\"achsten ggf. wieder gebremst werden muss und damit die M\"oglichkeit besteht aus der Bahn zu fliegen.
 
 \end{document}
